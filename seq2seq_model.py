@@ -88,6 +88,7 @@ class Seq2SeqModel(object):
     self.learning_rate_decay_op = self.learning_rate.assign(
         self.learning_rate * learning_rate_decay_factor)
     self.global_step = tf.Variable(0, trainable=False)
+    self.return_hidden_states = return_hidden_states
 
     # If we use sampled softmax, we need an output projection.
     output_projection = None
@@ -219,7 +220,7 @@ class Seq2SeqModel(object):
     self.saver = tf.train.Saver(tf.global_variables())
 
   def step(self, session, encoder_inputs, decoder_inputs, target_weights,
-           bucket_id, forward_only, return_hidden_states=False):
+           bucket_id, forward_only):
     """Run a step of the model feeding the given inputs.
     Args:
       session: tensorflow session to use.
@@ -271,7 +272,7 @@ class Seq2SeqModel(object):
 
     outputs = session.run(output_feed, input_feed)
     ### whether return hidden states
-    if return_hidden_states:
+    if self.return_hidden_states:
       if not forward_only:
         return outputs[1], outputs[2], None, input_states, output_states  # Gradient norm, loss, no outputs.
       else:
